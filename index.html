@@ -71,6 +71,21 @@
             border-color: rgba(139, 92, 246, 0.5);
         }
 
+        .guide-card-egg {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+
+        .guide-card-cooking {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(234, 88, 12, 0.2));
+            border-color: rgba(249, 115, 22, 0.5);
+        }
+
+        .guide-card-squirrel {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(180, 83, 9, 0.2));
+            border-color: rgba(217, 119, 6, 0.5);
+        }
+
         .guide-icon {
             font-size: 4rem;
             margin-bottom: 1rem;
@@ -214,6 +229,75 @@
                     </span>
                 </div>
             </a>
+
+            <!-- Egg Guide -->
+            <a href="dragonsword-새알.html" class="guide-card guide-card-egg glass-card rounded-2xl p-8 text-center border-2">
+                <div class="guide-icon">
+                    <i class="fas fa-egg text-green-400"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white mb-3">새알 위치 공략</h2>
+                <p class="text-gray-300 mb-4 text-sm">
+                    80~90개 수집 루트<br>낚시 바늘 위치 참고
+                </p>
+                <div class="flex flex-wrap gap-2 justify-center mb-4">
+                    <span class="badge bg-green-500 text-white">80~90개</span>
+                    <span class="badge bg-teal-500 text-white"><i class="fas fa-check mr-1"></i>체크리스트</span>
+                </div>
+                <div class="text-gray-400 text-sm">
+                    <i class="fas fa-clock mr-2"></i>3일에 500개
+                </div>
+                <div class="mt-4">
+                    <span class="text-green-300 font-semibold">
+                        바로 가기 →
+                    </span>
+                </div>
+            </a>
+
+            <!-- Cooking Guide -->
+            <a href="dragonsword-요리.html" class="guide-card guide-card-cooking glass-card rounded-2xl p-8 text-center border-2">
+                <div class="guide-icon">
+                    <i class="fas fa-utensils text-orange-400"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white mb-3">요리 레시피 정리</h2>
+                <p class="text-gray-300 mb-4 text-sm">
+                    레시피 + 효과<br>구글 시트로 정리
+                </p>
+                <div class="flex flex-wrap gap-2 justify-center mb-4">
+                    <span class="badge bg-orange-500 text-white"><i class="fas fa-fire mr-1"></i>레시피</span>
+                    <span class="badge bg-red-500 text-white"><i class="fas fa-chart-line mr-1"></i>효과</span>
+                </div>
+                <div class="text-gray-400 text-sm">
+                    <i class="fas fa-table mr-2"></i>스프레드시트
+                </div>
+                <div class="mt-4">
+                    <span class="text-orange-300 font-semibold">
+                        바로 가기 →
+                    </span>
+                </div>
+            </a>
+
+            <!-- Squirrel Guide -->
+            <a href="dragonsword-다람쥐.html" class="guide-card guide-card-squirrel glass-card rounded-2xl p-8 text-center border-2">
+                <div class="guide-icon">
+                    <i class="fas fa-otter text-amber-400"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white mb-3">다람쥐 런 공략</h2>
+                <p class="text-gray-300 mb-4 text-sm">
+                    리젠 위치 안내<br>3개 지역 지도 제공
+                </p>
+                <div class="flex flex-wrap gap-2 justify-center mb-4">
+                    <span class="badge bg-amber-600 text-white"><i class="fas fa-otter mr-1"></i>리젠 위치</span>
+                    <span class="badge bg-yellow-600 text-white"><i class="fas fa-clock mr-1"></i>4시간</span>
+                </div>
+                <div class="text-gray-400 text-sm">
+                    <i class="fas fa-map-marked-alt mr-2"></i>3개 지도
+                </div>
+                <div class="mt-4">
+                    <span class="text-amber-300 font-semibold">
+                        바로 가기 →
+                    </span>
+                </div>
+            </a>
         </div>
 
         <!-- Features Section -->
@@ -268,6 +352,35 @@
                     <li><i class="fas fa-star text-yellow-400 mr-2"></i>오르비스 주화는 매주 월요일 리셋</li>
                 </ul>
             </div>
+        </div>
+
+        <!-- YouTube Support Section -->
+        <div class="glass-card rounded-2xl p-8 mb-8 text-center">
+            <div class="mb-6">
+                <!-- LaWoonG Logo -->
+                <img src="https://www.genspark.ai/api/files/s/UjWQX0cT" 
+                     alt="LaWoonG Logo" 
+                     class="mx-auto rounded-2xl shadow-2xl mb-4"
+                     style="max-width: 300px; width: 100%; filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.6));">
+                <h3 class="text-2xl font-bold text-white mb-2">
+                    LaWoonG ShortS 유튜브 채널
+                </h3>
+                <p class="text-gray-300 mb-4">
+                    드래곤소드 미세팁 & 수노음악 제작
+                </p>
+            </div>
+            
+            <a href="https://www.youtube.com/@LaWoong" target="_blank" rel="noopener noreferrer" 
+               class="inline-block bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-4 px-8 rounded-xl transition-all transform hover:scale-105 shadow-lg mb-4">
+                <i class="fab fa-youtube mr-2 text-2xl"></i>
+                유튜브 채널 방문하기
+            </a>
+            
+            <p class="text-yellow-300 font-semibold mt-4 text-lg">
+                <i class="fas fa-heart text-red-400 mr-2"></i>
+                구독과 좋아요는 공략을 만드는데 힘이 됩니다
+                <i class="fas fa-heart text-red-400 ml-2"></i>
+            </p>
         </div>
 
         <!-- Footer -->
