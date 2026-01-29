@@ -66,9 +66,12 @@
                 </div>
             </div>
             <!-- Navigation -->
-            <div class="flex items-center justify-center gap-4">
-                <a href="dragonsword-ovis-coin.html" class="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg">
-                    <i class="fas fa-coins mr-2"></i>오르비스 주화 수집 가이드 →
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                <a href="dragonsword-오르비스주화.html" class="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-coins mr-2"></i>오르비스 주화
+                </a>
+                <a href="dragonsword-퍼즐.html" class="bg-gradient-to-r from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-puzzle-piece mr-2"></i>퍼즐 위치 40개
                 </a>
             </div>
         </header>
