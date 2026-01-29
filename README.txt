@@ -7,8 +7,8 @@
 ## 📚 공략 목록
 
 ### 1. 결정 위치 공략 (메인 페이지) 💎
-**파일**: `index.html`  
-**접속 경로**: `/` 또는 `/index.html`
+**파일**: `dragonsword-결정.html`  
+**접속 경로**: `/dragonsword-결정.html`
 
 드래곤소드의 4가지 결정(추억/회상/기억/망각) 위치를 상세하게 안내합니다.
 
@@ -30,8 +30,8 @@
 ---
 
 ### 2. 오르비스 주화 수집 가이드 💰
-**파일**: `dragonsword-ovis-coin.html`  
-**접속 경로**: `/dragonsword-ovis-coin.html`
+**파일**: `dragonsword-오르비스주화.html`  
+**접속 경로**: `/dragonsword-오르비스주화.html`
 
 매주 월요일 리셋되는 오르비스 주화 50개의 수집 루트와 진행도를 관리하는 체크리스트입니다.
 
@@ -52,8 +52,8 @@
 ---
 
 ### 3. 퍼즐 위치 40개 수집 가이드 🧩 ⭐ NEW
-**파일**: `dragonsword-puzzle.html`  
-**접속 경로**: `/dragonsword-puzzle.html`
+**파일**: `dragonsword-퍼즐.html`  
+**접속 경로**: `/dragonsword-퍼즐.html`
 
 5개 지역에 숨겨진 퍼즐 40개의 위치를 안내하고 진행도를 관리합니다.
 
@@ -85,12 +85,24 @@
 모든 페이지가 서로 연결되어 있습니다:
 
 ```
-메인 페이지 (결정 공략)
+결정 공략
     ↓↑
-오르비스 주화 가이드 ←→ 퍼즐 위치 가이드
+오르비스 주화 ←→ 퍼즐 위치
 ```
 
 각 페이지 상단에 네비게이션 버튼이 있어 쉽게 이동할 수 있습니다!
+
+---
+
+## 📁 파일 목록
+
+```
+📦 드래곤소드 공략 가이드
+├── 📄 dragonsword-결정.html          # 결정 위치 공략 💎
+├── 📄 dragonsword-오르비스주화.html   # 오르비스 주화 50개 💰
+├── 📄 dragonsword-퍼즐.html          # 퍼즐 위치 40개 🧩
+└── 📄 README.txt                     # 이 파일
+```
 
 ---
 
@@ -154,6 +166,18 @@ localStorage.setItem('dragonsword-puzzle-collected', '[1, 3, 5, ...]')
 3. 생성된 URL 복사
 4. 공유!
 
+### 접속 URL 예시
+```
+결정 공략:
+https://your-link.com/dragonsword-결정.html
+
+오르비스 주화:
+https://your-link.com/dragonsword-오르비스주화.html
+
+퍼즐 가이드:
+https://your-link.com/dragonsword-퍼즐.html
+```
+
 ### 다른 호스팅 서비스
 - **GitHub Pages**: `https://username.github.io/repo`
 - **Netlify**: 드래그 앤 드롭 배포
@@ -169,13 +193,13 @@ localStorage.setItem('dragonsword-puzzle-collected', '[1, 3, 5, ...]')
 🐉 드래곤소드 공략 가이드 3종 세트!
 
 💎 결정 위치 공략 (추억/회상/기억/망각)
-https://your-link.com
+👉 https://your-link.com/dragonsword-결정.html
 
 💰 오르비스 주화 50개 체크리스트
-https://your-link.com/dragonsword-ovis-coin.html
+👉 https://your-link.com/dragonsword-오르비스주화.html
 
 🧩 퍼즐 위치 40개 수집 가이드
-https://your-link.com/dragonsword-puzzle.html
+👉 https://your-link.com/dragonsword-퍼즐.html
 
 ✅ 진행도 자동 저장
 📊 실시간 통계 확인
@@ -189,19 +213,19 @@ https://your-link.com/dragonsword-puzzle.html
 ## 📖 사용 방법
 
 ### 1. 결정 위치 공략
-1. `index.html` 열기
+1. `dragonsword-결정.html` 열기
 2. 4가지 결정 타입 확인
 3. 10개 지도에서 위치 찾기
 4. 골렘 주의!
 
 ### 2. 오르비스 주화 수집
-1. `dragonsword-ovis-coin.html` 열기
+1. `dragonsword-오르비스주화.html` 열기
 2. 숫자 박스 클릭하여 수집 체크
 3. 자동 저장됨
 4. 진행도 실시간 확인
 
 ### 3. 퍼즐 위치 수집
-1. `dragonsword-puzzle.html` 열기
+1. `dragonsword-퍼즐.html` 열기
 2. 지역 카드 클릭하여 필터링 (선택)
 3. 숫자 박스 클릭하여 수집 체크
 4. 지역별 진행도 확인
@@ -252,6 +276,7 @@ https://your-link.com/dragonsword-puzzle.html
 
 ## 🔜 향후 개발 계획
 
+- [ ] 메인 index.html 페이지 추가
 - [ ] 다른 수집 아이템 가이드 추가
 - [ ] 주간 리셋 알림 기능
 - [ ] 커뮤니티 공유 기능
@@ -277,3 +302,5 @@ https://your-link.com/dragonsword-puzzle.html
 **Ready to Deploy!** 🚀 
 
 **3개 페이지 완성!** 💎💰🧩
+
+**파일명**: 한글로 변경 완료!
