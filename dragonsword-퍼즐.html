@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>드래곤소드 - 퍼즐 위치 40개 수집 가이드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #8b5cf6;
+            --secondary-color: #ec4899;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6, #10b981);
+            border-radius: 9999px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        }
+
+        .region-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .region-card:hover {
+            transform: scale(1.02);
+        }
+
+        .region-purple { 
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(167, 139, 250, 0.2));
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+        
+        .region-orange { 
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(251, 146, 60, 0.2));
+            border-color: rgba(249, 115, 22, 0.5);
+        }
+        
+        .region-red { 
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(248, 113, 113, 0.2));
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+        
+        .region-blue { 
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(96, 165, 250, 0.2));
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        
+        .region-yellow { 
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(250, 204, 21, 0.2));
+            border-color: rgba(234, 179, 8, 0.5);
+        }
+
+        .checklist-item {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checklist-item:hover {
+            transform: scale(1.1);
+        }
+
+        .checklist-item.collected {
+            opacity: 0.7;
+        }
+        
+        #checklist-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 1rem;
+        }
+
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 9999px;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(180deg);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        body.light-mode {
+            background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 50%, #fce7f3 100%);
+        }
+
+        body.light-mode .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .text-gray-100 {
+            color: #1f2937 !important;
+        }
+
+        body.light-mode .text-gray-300 {
+            color: #4b5563 !important;
+        }
+
+        body.light-mode .text-gray-400 {
+            color: #6b7280 !important;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .map-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: zoom-in;
+            transition: transform 0.3s ease;
+        }
+
+        .map-image.zoomed {
+            cursor: zoom-out;
+            transform: scale(1.5);
+        }
+
+        @media (max-width: 768px) {
+            .dark-mode-toggle {
+                top: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-100">
+    <!-- Dark Mode Toggle -->
+    <div class="dark-mode-toggle" onclick="toggleDarkMode()">
+        <i class="fas fa-moon text-purple-400 text-xl"></i>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 bg-clip-text text-transparent">
+                <span>드래곤소드 퍼즐 가이드</span>
+            </h1>
+            <h2 class="text-3xl font-semibold text-white mb-4">퍼즐 위치 40개 수집 루트</h2>
+            <div class="flex flex-col items-center justify-center gap-2 text-gray-400 mb-4">
+                <div class="flex items-center gap-4">
+                    <span><i class="fas fa-user mr-2"></i>작성자: 엉망진창겜유이</span>
+                    <span>|</span>
+                    <span><i class="fas fa-edit mr-2"></i>편집자: 비밀리 (LaWoonG ShortS)</span>
+                </div>
+            </div>
+            <p class="text-gray-300 text-lg mb-4">
+                <i class="fas fa-puzzle-piece mr-2"></i>5개 지역의 퍼즐을 모두 찾아보세요!
+            </p>
+            <!-- Navigation -->
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                <a href="dragonsword-결정.html" class="bg-gradient-to-r from-purple-400 to-pink-400 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-gem mr-2"></i>결정 위치 공략
+                </a>
+                <a href="dragonsword-오르비스주화.html" class="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-coins mr-2"></i>오르비스 주화
+                </a>
+            </div>
+        </header>
+
+        <!-- Progress Section -->
+        <section class="glass-card rounded-2xl p-8 mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-bold text-white">
+                    <i class="fas fa-chart-line mr-2 text-purple-400"></i>수집 진행도
+                </h3>
+                <button onclick="resetProgress()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all">
+                    <i class="fas fa-redo mr-2"></i>초기화
+                </button>
+            </div>
+            <div class="mb-6">
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-300">수집 완료</span>
+                    <span class="text-purple-400 font-bold" id="progress-text">0 / 40 (0%)</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-6 overflow-hidden">
+                    <div class="progress-bar-fill" id="progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div class="glass-card p-4 rounded-lg">
+                    <div class="text-3xl font-bold text-purple-400" id="total-count">0</div>
+                    <div class="text-sm text-gray-300">전체 수집</div>
+                </div>
+                <div class="glass-card p-4 rounded-lg">
+                    <div class="text-3xl font-bold text-green-400" id="today-count">0</div>
+                    <div class="text-sm text-gray-300">오늘 수집</div>
+                </div>
+                <div class="glass-card p-4 rounded-lg">
+                    <div class="text-3xl font-bold text-blue-400" id="remaining-count">40</div>
+                    <div class="text-sm text-gray-300">남은 개수</div>
+                </div>
+                <div class="glass-card p-4 rounded-lg">
+                    <div class="text-3xl font-bold text-pink-400" id="completion-rate">0%</div>
+                    <div class="text-sm text-gray-300">달성률</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Region Cards -->
+        <section class="mb-8">
+            <h3 class="text-2xl font-bold text-white mb-6 text-center">
+                <i class="fas fa-map mr-2 text-purple-400"></i>지역별 퍼즐 현황
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Purple Region -->
+                <div class="glass-card region-card region-purple rounded-xl p-6 border-2" onclick="filterRegion('칼파루옥')">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-xl font-bold text-purple-300">
+                            <i class="fas fa-map-marker-alt mr-2"></i>칼파루옥
+                        </h4>
+                        <span class="bg-purple-500 text-white px-3 py-1 rounded-full font-bold">5개</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-300 text-sm">수집 완료</span>
+                        <span class="text-purple-300 font-bold" id="region-purple-progress">0 / 5</span>
+                    </div>
+                </div>
+
+                <!-- Orange Region -->
+                <div class="glass-card region-card region-orange rounded-xl p-6 border-2" onclick="filterRegion('단풍 지대')">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-xl font-bold text-orange-300">
+                            <i class="fas fa-map-marker-alt mr-2"></i>단풍 지대
+                        </h4>
+                        <span class="bg-orange-500 text-white px-3 py-1 rounded-full font-bold">8개</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-300 text-sm">수집 완료</span>
+                        <span class="text-orange-300 font-bold" id="region-orange-progress">0 / 8</span>
+                    </div>
+                </div>
+
+                <!-- Red Region -->
+                <div class="glass-card region-card region-red rounded-xl p-6 border-2" onclick="filterRegion('무너진 경대')">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-xl font-bold text-red-300">
+                            <i class="fas fa-map-marker-alt mr-2"></i>무너진 경대
+                        </h4>
+                        <span class="bg-red-500 text-white px-3 py-1 rounded-full font-bold">8개</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-300 text-sm">수집 완료</span>
+                        <span class="text-red-300 font-bold" id="region-red-progress">0 / 8</span>
+                    </div>
+                </div>
+
+                <!-- Blue Region -->
+                <div class="glass-card region-card region-blue rounded-xl p-6 border-2" onclick="filterRegion('푸른라스 벌판')">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-xl font-bold text-blue-300">
+                            <i class="fas fa-map-marker-alt mr-2"></i>푸른라스 벌판
+                        </h4>
+                        <span class="bg-blue-500 text-white px-3 py-1 rounded-full font-bold">10개</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-300 text-sm">수집 완료</span>
+                        <span class="text-blue-300 font-bold" id="region-blue-progress">0 / 10</span>
+                    </div>
+                </div>
+
+                <!-- Yellow Region -->
+                <div class="glass-card region-card region-yellow rounded-xl p-6 border-2" onclick="filterRegion('리아닌 위치')">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-xl font-bold text-yellow-300">
+                            <i class="fas fa-map-marker-alt mr-2"></i>리아닌 위치
+                        </h4>
+                        <span class="bg-yellow-500 text-white px-3 py-1 rounded-full font-bold">9개</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-300 text-sm">수집 완료</span>
+                        <span class="text-yellow-300 font-bold" id="region-yellow-progress">0 / 9</span>
+                    </div>
+                </div>
+
+                <!-- All Regions -->
+                <div class="glass-card region-card rounded-xl p-6 border-2 border-purple-400" onclick="filterRegion('all')">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-xl font-bold text-purple-300">
+                            <i class="fas fa-globe mr-2"></i>전체 보기
+                        </h4>
+                        <span class="bg-purple-500 text-white px-3 py-1 rounded-full font-bold">40개</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-300 text-sm">모든 지역</span>
+                        <span class="text-purple-300 font-bold">
+                            <i class="fas fa-check-circle"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Map -->
+        <section class="mb-8">
+            <h3 class="text-2xl font-bold text-white mb-6 text-center">
+                <i class="fas fa-map-marked-alt mr-2 text-purple-400"></i>퍼즐 위치 지도
+            </h3>
+            <div class="glass-card rounded-2xl p-4 mb-4">
+                <div class="flex flex-wrap gap-3 justify-center text-sm">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 mr-2"></div>
+                        <span class="text-gray-300">칼파루옥 (5개)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 mr-2"></div>
+                        <span class="text-gray-300">단풍 지대 (8개)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full bg-gradient-to-br from-red-400 to-red-600 mr-2"></div>
+                        <span class="text-gray-300">무너진 경대 (8개)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 mr-2"></div>
+                        <span class="text-gray-300">푸른라스 벌판 (10개)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 mr-2"></div>
+                        <span class="text-gray-300">리아닌 위치 (9개)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="map-container">
+                <img src="https://www.genspark.ai/api/files/s/l1bwnPzi" 
+                     alt="드래곤소드 퍼즐 위치 지도" 
+                     class="map-image" 
+                     id="map-image"
+                     onclick="toggleZoom()">
+            </div>
+        </section>
+
+        <!-- Checklist -->
+        <section class="glass-card rounded-2xl p-8 mb-8">
+            <h3 class="text-2xl font-bold text-white mb-6">
+                <i class="fas fa-list-check mr-2 text-purple-400"></i>수집 체크리스트
+                <span class="text-sm text-gray-400 ml-4" id="filter-status">전체 40개</span>
+            </h3>
+            <div id="checklist-container">
+                <!-- Checklist items will be dynamically generated -->
+            </div>
+        </section>
+
+        <!-- Tips Section -->
+        <section class="glass-card rounded-2xl p-8 mb-8">
+            <h3 class="text-2xl font-bold text-white mb-6">
+                <i class="fas fa-lightbulb mr-2 text-purple-400"></i>수집 팁
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass-card p-4 rounded-lg">
+                    <h4 class="font-bold text-purple-400 mb-2">
+                        <i class="fas fa-route mr-2"></i>지역별 수집
+                    </h4>
+                    <p class="text-gray-300 text-sm">지역 카드를 클릭하면 해당 지역 퍼즐만 필터링됩니다.</p>
+                </div>
+                <div class="glass-card p-4 rounded-lg">
+                    <h4 class="font-bold text-purple-400 mb-2">
+                        <i class="fas fa-save mr-2"></i>자동 저장
+                    </h4>
+                    <p class="text-gray-300 text-sm">수집 진행도는 브라우저에 자동으로 저장됩니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-gray-400 border-t border-gray-700 pt-6">
+            <p class="mb-2">
+                <i class="fas fa-gamepad mr-2"></i>드래곤소드 공략 가이드
+            </p>
+            <p class="text-sm">© 2026 LaWoonG ShortS - Made with ❤️ for Travelers</p>
+        </footer>
+    </div>
+
+    <script>
+        // Puzzle points data based on image analysis
+        const puzzlePoints = [
+            // 칼파루옥 (Purple - 5개)
+            { id: 1, region: '칼파루옥', name: '칼파루옥 1번', color: 'purple' },
+            { id: 2, region: '칼파루옥', name: '칼파루옥 2번', color: 'purple' },
+            { id: 3, region: '칼파루옥', name: '칼파루옥 3번', color: 'purple' },
+            { id: 4, region: '칼파루옥', name: '칼파루옥 4번', color: 'purple' },
+            { id: 5, region: '칼파루옥', name: '칼파루옥 5번', color: 'purple' },
+            
+            // 단풍 지대 (Orange - 8개)
+            { id: 6, region: '단풍 지대', name: '단풍 지대 1번', color: 'orange' },
+            { id: 7, region: '단풍 지대', name: '단풍 지대 2번', color: 'orange' },
+            { id: 8, region: '단풍 지대', name: '단풍 지대 3번', color: 'orange' },
+            { id: 9, region: '단풍 지대', name: '단풍 지대 4번', color: 'orange' },
+            { id: 10, region: '단풍 지대', name: '단풍 지대 5번', color: 'orange' },
+            { id: 11, region: '단풍 지대', name: '단풍 지대 6번', color: 'orange' },
+            { id: 12, region: '단풍 지대', name: '단풍 지대 7번', color: 'orange' },
+            { id: 13, region: '단풍 지대', name: '단풍 지대 8번', color: 'orange' },
+            
+            // 무너진 경대 (Red - 8개)
+            { id: 14, region: '무너진 경대', name: '무너진 경대 1번', color: 'red' },
+            { id: 15, region: '무너진 경대', name: '무너진 경대 2번', color: 'red' },
+            { id: 16, region: '무너진 경대', name: '무너진 경대 3번', color: 'red' },
+            { id: 17, region: '무너진 경대', name: '무너진 경대 4번', color: 'red' },
+            { id: 18, region: '무너진 경대', name: '무너진 경대 5번', color: 'red' },
+            { id: 19, region: '무너진 경대', name: '무너진 경대 6번', color: 'red' },
+            { id: 20, region: '무너진 경대', name: '무너진 경대 7번', color: 'red' },
+            { id: 21, region: '무너진 경대', name: '무너진 경대 8번', color: 'red' },
+            
+            // 푸른라스 벌판 (Blue - 10개)
+            { id: 22, region: '푸른라스 벌판', name: '푸른라스 벌판 1번', color: 'blue' },
+            { id: 23, region: '푸른라스 벌판', name: '푸른라스 벌판 2번', color: 'blue' },
+            { id: 24, region: '푸른라스 벌판', name: '푸른라스 벌판 3번', color: 'blue' },
+            { id: 25, region: '푸른라스 벌판', name: '푸른라스 벌판 4번', color: 'blue' },
+            { id: 26, region: '푸른라스 벌판', name: '푸른라스 벌판 5번', color: 'blue' },
+            { id: 27, region: '푸른라스 벌판', name: '푸른라스 벌판 6번', color: 'blue' },
+            { id: 28, region: '푸른라스 벌판', name: '푸른라스 벌판 7번', color: 'blue' },
+            { id: 29, region: '푸른라스 벌판', name: '푸른라스 벌판 8번', color: 'blue' },
+            { id: 30, region: '푸른라스 벌판', name: '푸른라스 벌판 9번', color: 'blue' },
+            { id: 31, region: '푸른라스 벌판', name: '푸른라스 벌판 10번', color: 'blue' },
+            
+            // 리아닌 위치 (Yellow - 9개)
+            { id: 32, region: '리아닌 위치', name: '리아닌 위치 1번', color: 'yellow' },
+            { id: 33, region: '리아닌 위치', name: '리아닌 위치 2번', color: 'yellow' },
+            { id: 34, region: '리아닌 위치', name: '리아닌 위치 3번', color: 'yellow' },
+            { id: 35, region: '리아닌 위치', name: '리아닌 위치 4번', color: 'yellow' },
+            { id: 36, region: '리아닌 위치', name: '리아닌 위치 5번', color: 'yellow' },
+            { id: 37, region: '리아닌 위치', name: '리아닌 위치 6번', color: 'yellow' },
+            { id: 38, region: '리아닌 위치', name: '리아닌 위치 7번', color: 'yellow' },
+            { id: 39, region: '리아닌 위치', name: '리아닌 위치 8번', color: 'yellow' },
+            { id: 40, region: '리아닌 위치', name: '리아닌 위치 9번', color: 'yellow' }
+        ];
+
+        const regionCounts = {
+            '칼파루옥': 5,
+            '단풍 지대': 8,
+            '무너진 경대': 8,
+            '푸른라스 벌판': 10,
+            '리아닌 위치': 9
+        };
+
+        const colorMap = {
+            'purple': { bg: 'bg-purple-500', text: 'text-purple-300' },
+            'orange': { bg: 'bg-orange-500', text: 'text-orange-300' },
+            'red': { bg: 'bg-red-500', text: 'text-red-300' },
+            'blue': { bg: 'bg-blue-500', text: 'text-blue-300' },
+            'yellow': { bg: 'bg-yellow-500', text: 'text-yellow-300' }
+        };
+
+        // Initialize localStorage
+        let collectedPoints = JSON.parse(localStorage.getItem('dragonsword-puzzle-collected')) || [];
+        let currentFilter = 'all';
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeChecklist();
+            updateProgress();
+            updateStats();
+            updateRegionProgress();
+        });
+
+        // Initialize checklist
+        function initializeChecklist() {
+            const container = document.getElementById('checklist-container');
+            container.innerHTML = '';
+            
+            const filteredPoints = currentFilter === 'all' 
+                ? puzzlePoints 
+                : puzzlePoints.filter(p => p.region === currentFilter);
+
+            const filterStatus = document.getElementById('filter-status');
+            if (currentFilter === 'all') {
+                filterStatus.textContent = '전체 40개';
+            } else {
+                filterStatus.textContent = `${currentFilter} ${filteredPoints.length}개`;
+            }
+
+            filteredPoints.forEach(point => {
+                const isCollected = collectedPoints.includes(point.id);
+                const colors = colorMap[point.color];
+                const item = document.createElement('div');
+                item.className = `checklist-item ${isCollected ? 'collected' : ''}`;
+                item.onclick = () => togglePoint(point.id);
+                
+                item.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-lg ${isCollected ? 'bg-green-500' : colors.bg} 
+                                    flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                            ${isCollected ? '✓' : point.id}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+
+        // Toggle collection point
+        function togglePoint(id) {
+            const index = collectedPoints.indexOf(id);
+            if (index > -1) {
+                collectedPoints.splice(index, 1);
+            } else {
+                collectedPoints.push(id);
+            }
+            
+            localStorage.setItem('dragonsword-puzzle-collected', JSON.stringify(collectedPoints));
+            initializeChecklist();
+            updateProgress();
+            updateStats();
+            updateRegionProgress();
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const total = 40;
+            const collected = collectedPoints.length;
+            const percentage = (collected / total * 100).toFixed(1);
+            
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+            document.getElementById('progress-text').textContent = `${collected} / ${total} (${percentage}%)`;
+        }
+
+        // Update statistics
+        function updateStats() {
+            const total = collectedPoints.length;
+            const today = new Date().toDateString();
+            const lastVisit = localStorage.getItem('dragonsword-puzzle-last-visit');
+            let todayCount = 0;
+            
+            if (lastVisit === today) {
+                todayCount = parseInt(localStorage.getItem('dragonsword-puzzle-today-count') || '0');
+            }
+            
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('today-count').textContent = todayCount;
+            document.getElementById('remaining-count').textContent = 40 - total;
+            document.getElementById('completion-rate').textContent = `${(total / 40 * 100).toFixed(0)}%`;
+            
+            localStorage.setItem('dragonsword-puzzle-last-visit', today);
+            localStorage.setItem('dragonsword-puzzle-today-count', todayCount + 1);
+        }
+
+        // Update region progress
+        function updateRegionProgress() {
+            const regions = {
+                'purple': '칼파루옥',
+                'orange': '단풍 지대',
+                'red': '무너진 경대',
+                'blue': '푸른라스 벌판',
+                'yellow': '리아닌 위치'
+            };
+
+            Object.entries(regions).forEach(([color, regionName]) => {
+                const regionPoints = puzzlePoints.filter(p => p.region === regionName);
+                const collected = regionPoints.filter(p => collectedPoints.includes(p.id)).length;
+                const total = regionCounts[regionName];
+                document.getElementById(`region-${color}-progress`).textContent = `${collected} / ${total}`;
+            });
+        }
+
+        // Reset progress
+        function resetProgress() {
+            if (confirm('정말로 모든 수집 진행도를 초기화하시겠습니까?')) {
+                collectedPoints = [];
+                localStorage.setItem('dragonsword-puzzle-collected', JSON.stringify(collectedPoints));
+                localStorage.removeItem('dragonsword-puzzle-today-count');
+                initializeChecklist();
+                updateProgress();
+                updateStats();
+                updateRegionProgress();
+            }
+        }
+
+        // Filter by region
+        function filterRegion(region) {
+            currentFilter = region;
+            initializeChecklist();
+        }
+
+        // Toggle zoom on map
+        function toggleZoom() {
+            const mapImage = document.getElementById('map-image');
+            mapImage.classList.toggle('zoomed');
+        }
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('light-mode');
+            const icon = document.querySelector('.dark-mode-toggle i');
+            if (document.body.classList.contains('light-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                icon.classList.remove('text-purple-400');
+                icon.classList.add('text-yellow-400');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                icon.classList.remove('text-yellow-400');
+                icon.classList.add('text-purple-400');
+            }
+        }
+    </script>
+</body>
+</html>
