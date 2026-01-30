@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>새알 위치 좌표 수집 툴 🎣</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .map-container {
+            position: relative;
+            overflow: auto;
+            max-height: 80vh;
+            border-radius: 12px;
+            background: #1e293b;
+        }
+
+        .map-container.dragging {
+            cursor: grab;
+        }
+
+        .map-container.dragging:active {
+            cursor: grabbing;
+        }
+
+        .map-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: crosshair;
+            min-width: 100%;
+            transition: transform 0.3s ease;
+            transform-origin: 0 0;
+        }
+
+        .map-image {
+            width: 100%;
+            display: block;
+            user-select: none;
+        }
+
+        .zoom-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .zoom-btn {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .zoom-btn:hover {
+            background: rgba(16, 185, 129, 0.9);
+            border-color: #10b981;
+            transform: scale(1.1);
+        }
+
+        .zoom-level {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .marker-dot {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #10b981;
+            border: 2px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .marker-dot.warning {
+            background: #f59e0b;
+            border-color: #fbbf24;
+            animation: warningPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% {
+                box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+            }
+            50% {
+                box-shadow: 0 0 16px rgba(245, 158, 11, 1), 0 0 24px rgba(245, 158, 11, 0.6);
+            }
+        }
+
+        .marker-dot:hover {
+            transform: translate(-50%, -50%) scale(1.5);
+            background: #ef4444;
+            box-shadow: 0 0 16px rgba(239, 68, 68, 1);
+        }
+
+        .marker-number {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .coordinate-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .coordinate-item {
+            transition: all 0.2s ease;
+        }
+
+        .coordinate-item:hover {
+            background: rgba(16, 185, 129, 0.2);
+            transform: translateX(5px);
+        }
+
+        code {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body class="text-gray-100 p-6">
+    <div class="container mx-auto max-w-7xl">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-4">
+                <i class="fas fa-map-marker-alt text-green-400"></i>
+                새알 위치 좌표 수집 툴
+            </h1>
+            <p class="text-gray-300">지도를 클릭하여 새알 위치를 표시하세요! 🎣</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Map Section (2/3) -->
+            <div class="lg:col-span-2">
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-white">
+                            <i class="fas fa-map mr-2 text-green-400"></i>지도
+                        </h2>
+                        <div class="flex gap-2">
+                            <button onclick="undoLastMarker()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-undo mr-2"></i>실행 취소
+                            </button>
+                            <button onclick="clearAllMarkers()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-trash mr-2"></i>전체 삭제
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-900/30 border border-blue-500/50 rounded-lg p-4 mb-4 text-sm">
+                        <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                        <strong>사용법:</strong> 
+                        <ul class="mt-2 ml-6 space-y-1">
+                            <li>• 오른쪽 상단 버튼으로 지도를 확대/축소하세요</li>
+                            <li>• <kbd class="bg-gray-700 px-2 py-1 rounded">Ctrl</kbd> + 마우스 휠로도 확대/축소 가능</li>
+                            <li>• <kbd class="bg-gray-700 px-2 py-1 rounded">Alt</kbd> + 마우스 드래그로 지도 이동</li>
+                            <li>• 지도를 클릭하여 새알 위치에 마커를 추가하세요</li>
+                            <li>• 마커를 클릭하면 삭제됩니다</li>
+                        </ul>
+                    </div>
+
+                    <div class="map-container" id="map-container">
+                        <div class="zoom-controls">
+                            <button class="zoom-btn" onclick="zoomIn()" title="확대">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <div class="zoom-level" id="zoom-level">100%</div>
+                            <button class="zoom-btn" onclick="zoomOut()" title="축소">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button class="zoom-btn" onclick="resetZoom()" title="원래 크기">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                        <div class="map-wrapper" id="map-wrapper">
+                            <img src="https://www.genspark.ai/api/files/s/HVrfGwzH" 
+                                 alt="드래곤소드 새알 위치 지도" 
+                                 class="map-image" 
+                                 id="map-image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--Coordinates Panel (1/3) -->
+            <div class="lg:col-span-1">
+                <!-- Progress Section -->
+                <div class="glass-card rounded-2xl p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-white">
+                            <i class="fas fa-chart-line mr-2 text-green-400"></i>마커 진행도
+                        </h3>
+                        <button onclick="clearAllMarkers()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg transition-colors text-sm">
+                            <i class="fas fa-trash mr-1"></i>전체 삭제
+                        </button>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm text-gray-300 mb-2">
+                            <span>전체 진행도</span>
+                            <span id="progress-text">0 / 84</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full transition-all duration-500" id="progress-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="glass-card p-3 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-green-400" id="marker-count">0</div>
+                            <div class="text-xs text-gray-300">마커 개수</div>
+                        </div>
+                        <div class="glass-card p-3 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-blue-400" id="remaining-count">84</div>
+                            <div class="text-xs text-gray-300">남은 개수</div>
+                        </div>
+                        <div class="glass-card p-3 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-yellow-400">84</div>
+                            <div class="text-xs text-gray-300">목표</div>
+                        </div>
+                        <div class="glass-card p-3 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-pink-400" id="completion-rate">0%</div>
+                            <div class="text-xs text-gray-300">달성률</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coordinate List -->
+                <div class="glass-card rounded-2xl p-6 mb-6">
+                    <h3 class="text-xl font-bold text-white mb-4">
+                        <i class="fas fa-list text-green-400 mr-2"></i>좌표 목록
+                    </h3>
+                    <div class="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3 mb-3 text-xs">
+                        <p class="text-blue-300 mb-2">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            <strong>좌표 목록 설명</strong>
+                        </p>
+                        <ul class="text-gray-300 space-y-1 ml-4">
+                            <li>• 지도에 추가한 모든 마커의 좌표가 표시됩니다</li>
+                            <li>• 각 좌표는 지도의 백분율 위치(x%, y%)로 표시됩니다</li>
+                            <li>• 노란색 경고가 있는 마커는 다른 마커와 너무 가까움</li>
+                        </ul>
+                    </div>
+                    <div class="coordinate-list space-y-2" id="coordinate-list">
+                        <p class="text-gray-400 text-sm text-center">좌표가 없습니다</p>
+                    </div>
+                </div>
+
+                <!-- Export Button -->
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4">
+                        <i class="fas fa-code text-green-400 mr-2"></i>내보내기
+                    </h3>
+                    <div class="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-3 mb-3 text-xs">
+                        <p class="text-yellow-300 mb-2">
+                            <i class="fas fa-lightbulb mr-1"></i>
+                            <strong>새로운 새알 위치가 추가될 때</strong>
+                        </p>
+                        <ul class="text-gray-300 space-y-1 ml-4">
+                            <li>• 새로운 위치를 지도에 표시하세요</li>
+                            <li>• "좌표 배열 복사" 버튼을 클릭하세요</li>
+                            <li>• 복사된 코드를 저에게 제공하세요</li>
+                            <li>• 제가 새알 페이지를 업데이트하겠습니다!</li>
+                        </ul>
+                    </div>
+                    <button onclick="exportCoordinates()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors mb-3">
+                        <i class="fas fa-copy mr-2"></i>좌표 배열 복사
+                    </button>
+                    <p class="text-xs text-gray-400 text-center">
+                        클립보드에 JavaScript 배열 형식으로 복사됩니다
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="glass-card rounded-2xl p-6 mt-6">
+            <h3 class="text-xl font-bold text-white mb-4">
+                <i class="fas fa-question-circle text-yellow-400 mr-2"></i>작업 순서
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div class="glass-card p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-green-400 mb-2">1</div>
+                    <p class="text-sm text-gray-300">지도를 확대/축소하고 Alt+드래그로 이동</p>
+                </div>
+                <div class="glass-card p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-green-400 mb-2">2</div>
+                    <p class="text-sm text-gray-300">새알 위치를 클릭하여 마커 추가</p>
+                </div>
+                <div class="glass-card p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-green-400 mb-2">3</div>
+                    <p class="text-sm text-gray-300">마커를 추가할 때마다 진행도가 자동으로 증가합니다</p>
+                </div>
+                <div class="glass-card p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-green-400 mb-2">4</div>
+                    <p class="text-sm text-gray-300">실수로 추가한 마커는 클릭하여 삭제</p>
+                </div>
+                <div class="glass-card p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-green-400 mb-2">5</div>
+                    <p class="text-sm text-gray-300">84개 완성 후 "좌표 배열 복사" 버튼 클릭</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const totalEggs = 84;
+        let markers = [];
+        let nextId = 1;
+        let zoomLevel = 1;
+        const zoomStep = 0.25;
+        const minZoom = 0.5;
+        const maxZoom = 3;
+        const minDistance = 3; // Minimum distance between markers (in percentage)
+
+        // Drag to pan variables
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let scrollLeft = 0;
+        let scrollTop = 0;
+        let dragMoved = false;
+
+        const mapContainer = document.getElementById('map-container');
+        const mapWrapper = document.getElementById('map-wrapper');
+        const mapImage = document.getElementById('map-image');
+
+        // Alt + Drag to pan
+        mapContainer.addEventListener('mousedown', function(e) {
+            if (e.altKey) {
+                isDragging = true;
+                dragMoved = false;
+                mapContainer.classList.add('dragging');
+                startX = e.pageX - mapContainer.offsetLeft;
+                startY = e.pageY - mapContainer.offsetTop;
+                scrollLeft = mapContainer.scrollLeft;
+                scrollTop = mapContainer.scrollTop;
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            dragMoved = true;
+            const x = e.pageX - mapContainer.offsetLeft;
+            const y = e.pageY - mapContainer.offsetTop;
+            const walkX = (x - startX) * 1.5;
+            const walkY = (y - startY) * 1.5;
+            mapContainer.scrollLeft = scrollLeft - walkX;
+            mapContainer.scrollTop = scrollTop - walkY;
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (isDragging) {
+                isDragging = false;
+                mapContainer.classList.remove('dragging');
+                // Reset dragMoved after a short delay
+                setTimeout(() => { dragMoved = false; }, 100);
+            }
+        });
+
+        // Add click handler to map
+        mapWrapper.addEventListener('click', function(e) {
+            // Don't add marker if dragging or clicking on existing marker or zoom controls
+            if (dragMoved || 
+                e.target.classList.contains('marker-dot') || 
+                e.target.closest('.marker-dot') ||
+                e.target.closest('.zoom-controls')) {
+                return;
+            }
+
+            const rect = mapImage.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+            const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+
+            addMarker(parseFloat(x), parseFloat(y));
+        });
+
+        // Zoom functions
+        function zoomIn() {
+            if (zoomLevel < maxZoom) {
+                zoomLevel += zoomStep;
+                applyZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (zoomLevel > minZoom) {
+                zoomLevel -= zoomStep;
+                applyZoom();
+            }
+        }
+
+        function resetZoom() {
+            zoomLevel = 1;
+            applyZoom();
+            mapContainer.scrollTop = 0;
+            mapContainer.scrollLeft = 0;
+        }
+
+        function applyZoom() {
+            mapWrapper.style.transform = `scale(${zoomLevel})`;
+            mapWrapper.style.width = `${100 * zoomLevel}%`;
+            document.getElementById('zoom-level').textContent = `${Math.round(zoomLevel * 100)}%`;
+        }
+
+        // Mouse wheel zoom
+        mapContainer.addEventListener('wheel', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                if (e.deltaY < 0) {
+                    zoomIn();
+                } else {
+                    zoomOut();
+                }
+            }
+        }, { passive: false });
+
+        function addMarker(x, y) {
+            // Check for nearby markers
+            const nearbyMarkers = markers.filter(m => {
+                const distance = Math.sqrt(Math.pow(m.x - x, 2) + Math.pow(m.y - y, 2));
+                return distance < minDistance;
+            });
+
+            if (nearbyMarkers.length > 0) {
+                // Show warning but still add marker
+                const confirmation = confirm(
+                    `⚠️ 경고: 가까운 마커가 있습니다!\n\n` +
+                    `가장 가까운 마커: #${markers.indexOf(nearbyMarkers[0]) + 1}\n` +
+                    `거리: ${Math.sqrt(Math.pow(nearbyMarkers[0].x - x, 2) + Math.pow(nearbyMarkers[0].y - y, 2)).toFixed(1)}%\n\n` +
+                    `그래도 마커를 추가하시겠습니까?`
+                );
+                
+                if (!confirmation) {
+                    return; // Don't add marker
+                }
+            }
+
+            const marker = {
+                id: nextId++,
+                x: x,
+                y: y,
+                hasWarning: nearbyMarkers.length > 0
+            };
+            markers.push(marker);
+
+            renderMarkers();
+            updateStats();
+            updateCoordinateList();
+        }
+
+        function removeMarker(id) {
+            markers = markers.filter(m => m.id !== id);
+            renderMarkers();
+            updateStats();
+            updateCoordinateList();
+        }
+
+        function renderMarkers() {
+            // Remove existing marker elements
+            const existingMarkers = mapWrapper.querySelectorAll('.marker-dot');
+            existingMarkers.forEach(m => m.remove());
+
+            // Add new markers
+            markers.forEach((marker, index) => {
+                // Check if this marker is too close to others
+                const tooClose = markers.some((m, i) => {
+                    if (i === index) return false;
+                    const distance = Math.sqrt(Math.pow(m.x - marker.x, 2) + Math.pow(m.y - marker.y, 2));
+                    return distance < minDistance;
+                });
+
+                const dot = document.createElement('div');
+                dot.className = `marker-dot ${tooClose ? 'warning' : ''}`;
+                dot.style.left = marker.x + '%';
+                dot.style.top = marker.y + '%';
+                dot.innerHTML = `<div class="marker-number">${index + 1}${tooClose ? ' ⚠️' : ''}</div>`;
+                dot.onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm(`마커 ${index + 1}을(를) 삭제하시겠습니까?`)) {
+                        removeMarker(marker.id);
+                    }
+                };
+                mapWrapper.appendChild(dot);
+            });
+        }
+
+        function updateStats() {
+            const markerCount = markers.length;
+            const remaining = totalEggs - markerCount;
+            const percentage = Math.round((markerCount / totalEggs) * 100);
+            
+            document.getElementById('marker-count').textContent = markerCount;
+            document.getElementById('progress-bar').style.width = percentage + '%';
+            document.getElementById('progress-text').textContent = `${markerCount} / ${totalEggs}`;
+            document.getElementById('remaining-count').textContent = remaining;
+            document.getElementById('completion-rate').textContent = percentage + '%';
+        }
+
+        function initializeChecklist() {
+            // Removed - no longer needed
+        }
+
+        function toggleEgg(id) {
+            // Removed - no longer needed
+        }
+
+        function updateCollectionProgress() {
+            // Removed - no longer needed
+        }
+
+        function resetProgress() {
+            // Removed - no longer needed
+        }
+
+        function updateCoordinateList() {
+            const list = document.getElementById('coordinate-list');
+            
+            if (markers.length === 0) {
+                list.innerHTML = '<p class="text-gray-400 text-sm text-center">좌표가 없습니다</p>';
+                return;
+            }
+
+            list.innerHTML = markers.map((m, index) => {
+                // Check if this marker is too close to others
+                const tooClose = markers.some((other, i) => {
+                    if (i === index) return false;
+                    const distance = Math.sqrt(Math.pow(other.x - m.x, 2) + Math.pow(other.y - m.y, 2));
+                    return distance < minDistance;
+                });
+
+                return `
+                    <div class="coordinate-item glass-card p-3 rounded-lg ${tooClose ? 'border-2 border-yellow-500' : ''}">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold ${tooClose ? 'text-yellow-400' : 'text-green-400'}">
+                                #${index + 1} ${tooClose ? '⚠️' : ''}
+                            </span>
+                            <code class="text-xs text-gray-300">${m.x}%, ${m.y}%</code>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function undoLastMarker() {
+            if (markers.length === 0) {
+                alert('삭제할 마커가 없습니다!');
+                return;
+            }
+            markers.pop();
+            nextId--;
+            renderMarkers();
+            updateStats();
+            updateCoordinateList();
+        }
+
+        function clearAllMarkers() {
+            if (markers.length === 0) {
+                alert('삭제할 마커가 없습니다!');
+                return;
+            }
+            if (confirm(`정말로 모든 마커(${markers.length}개)를 삭제하시겠습니까?`)) {
+                markers = [];
+                nextId = 1;
+                renderMarkers();
+                updateStats();
+                updateCoordinateList();
+            }
+        }
+
+        function exportCoordinates() {
+            if (markers.length === 0) {
+                alert('내보낼 좌표가 없습니다!');
+                return;
+            }
+
+            const arrayString = `const eggPositions = [\n${markers.map((m, index) => 
+                `    {id: ${index + 1}, x: ${m.x}, y: ${m.y}}`
+            ).join(',\n')}\n];`;
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(arrayString).then(() => {
+                alert(`✅ ${markers.length}개의 좌표가 클립보드에 복사되었습니다!\n\ndragonsword-새알.html 파일의 eggPositions 배열을 교체하세요.`);
+            }).catch(err => {
+                console.error('복사 실패:', err);
+                // Fallback: show in alert
+                prompt('다음 코드를 복사하세요:', arrayString);
+            });
+        }
+
+        // Initialize
+        applyZoom(); // Set initial zoom level display
+        updateStats();
+    </script>
+</body>
+</html>
